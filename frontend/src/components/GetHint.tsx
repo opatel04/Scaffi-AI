@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { X, Lightbulb, Loader2 } from 'lucide-react';
 import { getHint } from '../api/endpoints';
@@ -13,15 +13,17 @@ interface GetHintProps {
   currentTodoIndex?: number;
   knownLanguage?: string;
   onClose: () => void;
+  autoTrigger?: boolean;
+  autoTriggerQuestion?: string;
 }
 
-export function GetHint({ code, language, currentTask, scaffold, currentTodoIndex = 0, knownLanguage, onClose }: GetHintProps) {
+export function GetHint({ code, language, currentTask, scaffold, currentTodoIndex = 0, knownLanguage, onClose, autoTrigger = false, autoTriggerQuestion }: GetHintProps) {
   const [hint, setHint] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [helpCount, setHelpCount] = useState(0);
   const [previousHints, setPreviousHints] = useState<string[]>([]);
 
-  const handleGetHint = async () => {
+  const handleGetHint = async (questionOverride?: string) => {
     if (!scaffold) return;
 
     setIsLoading(true);
@@ -30,10 +32,10 @@ export function GetHint({ code, language, currentTask, scaffold, currentTodoInde
       const todos = scaffold.task_todos?.[`task_${currentTask}`] || scaffold.todos || [];
       const currentTodo = todos[currentTodoIndex] || null;
       
-      // Build question with current TODO
-      const question = currentTodo 
+      // Build question - use override if provided, otherwise use TODO or default
+      const question = questionOverride || (currentTodo 
         ? `I'm stuck on: ${currentTodo}`
-        : `I'm stuck on task ${currentTask + 1}`;
+        : `I'm stuck on task ${currentTask + 1}`);
 
       // Get task description and concepts
       const taskDescription = scaffold.todo_list?.[currentTask] || 'Current task';
@@ -66,6 +68,14 @@ export function GetHint({ code, language, currentTask, scaffold, currentTodoInde
       setIsLoading(false);
     }
   };
+
+  // Auto-trigger hint when component mounts with autoTrigger prop
+  useEffect(() => {
+    if (autoTrigger && scaffold && autoTriggerQuestion && helpCount === 0 && !isLoading) {
+      handleGetHint(autoTriggerQuestion);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoTrigger, autoTriggerQuestion]);
 
   const getHintLevel = () => {
     if (helpCount === 0) return 1;

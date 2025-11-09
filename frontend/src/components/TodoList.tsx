@@ -4,7 +4,6 @@ import type { TodoListProps } from '../types';
 
 export function TodoList({
   todos,
-  currentTask,
   onTaskSelect,
   completedTasks = new Set(),
   selectedTaskForExamples,
@@ -30,8 +29,8 @@ export function TodoList({
       <ol className="space-y-1">
         {todos.map((todo, index) => {
           const isCompleted = completedTasks.has(index);
-          const isCurrent = index === currentTask;
-          const isSelectedForExamples = selectedTaskForExamples === index;
+          // Only highlight for examples if selectedTaskForExamples is defined (panel is open)
+          const isSelectedForExamples = selectedTaskForExamples !== undefined && selectedTaskForExamples === index;
 
           return (
             <li
@@ -39,8 +38,8 @@ export function TodoList({
               onClick={(e) => handleTaskClick(index, e)}
               className={cn(
                 "flex items-start gap-3 rounded-md p-3 cursor-pointer transition-all duration-150",
-                (isCurrent || isSelectedForExamples) && "bg-black/5 dark:bg-muted border border-black/10 dark:border-border",
-                !isCurrent && !isSelectedForExamples && "hover:bg-black/2.5 dark:hover:bg-muted/50"
+                isSelectedForExamples && "bg-black/5 dark:bg-muted border border-black/10 dark:border-border",
+                !isSelectedForExamples && "hover:bg-black/2.5 dark:hover:bg-muted/50"
               )}
             >
               <div className="mt-0.5 flex-shrink-0 task-checkbox cursor-pointer">
@@ -53,8 +52,8 @@ export function TodoList({
               <span className={cn(
                 "flex-1 text-sm leading-relaxed",
                 isCompleted && "line-through text-gray-500 dark:text-muted-foreground",
-                (isCurrent || isSelectedForExamples) && "font-medium text-black dark:text-foreground",
-                !isCurrent && !isSelectedForExamples && !isCompleted && "text-gray-700 dark:text-muted-foreground"
+                isSelectedForExamples && "font-medium text-black dark:text-foreground",
+                !isSelectedForExamples && !isCompleted && "text-gray-700 dark:text-muted-foreground"
               )}>
                 {index + 1}. {todo}
               </span>

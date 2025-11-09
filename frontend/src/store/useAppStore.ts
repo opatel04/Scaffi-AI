@@ -122,7 +122,7 @@ export const useAppStore = create<AppStore>()(
         assignmentId: state.assignmentId,
         language: state.language,
         proficientLanguage: state.proficientLanguage,
-        completedTasks: Array.from(state.completedTasks),
+        // Removed completedTasks from persistence - tasks won't be saved between sessions
         isDarkMode: state.isDarkMode,
       }),
       onRehydrateStorage: () => (state) => {

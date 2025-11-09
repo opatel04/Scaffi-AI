@@ -33,7 +33,7 @@ class CodegenAgent:
         for attempt in range(self.max_retries):
             try:
                 logger.info(f"Codegen Agent attempt {attempt + 1}/{self.max_retries}")
-                response_text = self.client.generate_response(prompt, max_tokens=2500)
+                response_text = self.client.generate_response(prompt, max_tokens=1000)
                 
                 data = extract_json_from_response(response_text)
 

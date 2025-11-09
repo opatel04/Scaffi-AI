@@ -8,7 +8,6 @@ def get_parser_prompt(assignment_text: str, target_language: str,
     """
     Agent 1: Assignment Parser (UPDATED)
     Parse assignment and break into ordered tasks with dependencies
-    Now includes better concept identification for Agent 2's intelligent examples
     """
     known_lang_context = f"\nKnown Language: {known_language}" if known_language else "\nNo prior programming experience"
     
@@ -32,7 +31,7 @@ IMPORTANT RULES:
 - Focus on breaking down WHAT needs to be done, not HOW to do it completely
 - Ensure dependencies are realistic (task 3 cannot depend on task 5)
 - Order tasks in a logical learning progression
-- Each task should be completable in one sitting (20-60 minutes typically)
+- Each task should be completable in one sitting (20-40 minutes typically)
 
 CONCEPT IDENTIFICATION GUIDELINES:
 When identifying concepts for each task, be SPECIFIC and distinguish between:
@@ -53,7 +52,7 @@ This helps the next agent (code generator) determine which concepts need example
 
 Return ONLY a valid JSON object with this EXACT structure:
 {{
-    "overview": "Brief 2-3 sentence overview of the assignment",
+    "overview": "Brief 2 sentence overview of the assignment",
     "total_estimated_time": "X hours",
     "tasks": [
         {{

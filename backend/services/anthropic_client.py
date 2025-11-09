@@ -10,8 +10,6 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-logger = logging.getLogger(__name__)
-
 
 class AnthropicClient:
     def __init__(self):

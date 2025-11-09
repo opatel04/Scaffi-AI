@@ -2,9 +2,13 @@ import anthropic
 import os
 import time
 import logging
+import time
+import logging
 from dotenv import load_dotenv
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 logger = logging.getLogger(__name__)
 

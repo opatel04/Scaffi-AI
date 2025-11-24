@@ -34,6 +34,7 @@ export function EditorPage() {
     startTime,
     language,
     proficientLanguage,
+    experienceLevel,
     //isLoading,
     error,
     addCompletedTask,
@@ -359,6 +360,7 @@ export function EditorPage() {
                 scaffold={scaffold}
                 currentTodoIndex={0}
                 knownLanguage={proficientLanguage}
+                experienceLevel={experienceLevel}
                 onClose={() => {
                   setShowHelpPanel(false);
                   setAutoTriggerQuestion(undefined);

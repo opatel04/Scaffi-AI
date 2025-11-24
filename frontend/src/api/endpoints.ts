@@ -66,7 +66,8 @@ export async function getHint(
   previousHints: string[],
   helpCount: number,
   knownLanguage?: string,
-  targetLanguage?: string
+  targetLanguage?: string,
+  experienceLevel?: string
 ): Promise<HintSchema> {
   // Ensure all values are serializable
   const payload = {
@@ -80,6 +81,7 @@ export async function getHint(
     help_count: Number(helpCount) || 1,
     known_language: knownLanguage ? String(knownLanguage) : null,
     target_language: targetLanguage ? String(targetLanguage) : null,
+    experience_level: experienceLevel ? String(experienceLevel) : null,
   };
 
   return apiCall<HintSchema>("/get-hint", {
@@ -293,7 +295,8 @@ export async function chatWithAI(
   scaffold?: ScaffoldPackage,
   previousHints: string[] = [],
   helpCount: number = 0,
-  knownLanguage?: string
+  knownLanguage?: string,
+  experienceLevel?: string
 ): Promise<{ response: string }> {
   // Extract task description and concepts from scaffold if available
   const taskIndex = parseInt(taskId) || 0;
@@ -311,7 +314,8 @@ export async function chatWithAI(
     previousHints,
     helpCount + 1, // Increment help count
     knownLanguage,
-    language // target_language
+    language, // target_language
+    experienceLevel
   );
 
   return {

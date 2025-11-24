@@ -7,6 +7,7 @@ interface AppStore extends AppState {
   setAssignmentText: (text: string) => void;
   setLanguage: (language: string) => void;
   setProficientLanguage: (language: string) => void;
+  setExperienceLevel: (level: string) => void;
   setParserOutput: (output: ParserOutput | null) => void;
   setScaffold: (scaffold: ScaffoldPackage | null) => void;
   setCurrentTask: (task: number) => void;
@@ -41,6 +42,7 @@ const initialState: AppState = {
   assignmentText: '',
   language: 'python',
   proficientLanguage: 'python',
+  experienceLevel: 'intermediate',
   parserOutput: null,
   scaffold: null,
   currentTask: 0,
@@ -68,6 +70,7 @@ export const useAppStore = create<AppStore>()(
       setAssignmentText: (text) => set({ assignmentText: text }),
       setLanguage: (language) => set({ language }),
       setProficientLanguage: (language) => set({ proficientLanguage: language }),
+      setExperienceLevel: (level) => set({ experienceLevel: level }),
       setParserOutput: (output) => set({ parserOutput: output }),
       setScaffold: (scaffold) => set({ scaffold }),
       setCurrentTask: (task) => set({ currentTask: task, attemptCount: 0 }),
@@ -122,6 +125,7 @@ export const useAppStore = create<AppStore>()(
         assignmentId: state.assignmentId,
         language: state.language,
         proficientLanguage: state.proficientLanguage,
+        experienceLevel: state.experienceLevel,
         // Removed completedTasks from persistence - tasks won't be saved between sessions
         isDarkMode: state.isDarkMode,
       }),

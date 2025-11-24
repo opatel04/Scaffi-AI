@@ -142,6 +142,7 @@ export interface AppState {
   assignmentText: string;
   language: string;
   proficientLanguage: string;
+  experienceLevel: string;
   parserOutput: ParserOutput | null;
   
   // Scaffold

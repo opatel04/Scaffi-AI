@@ -66,6 +66,7 @@ class HintResponseSchema(BaseModel):
    help_count: int
    known_language: Optional[str] = None
    target_language: Optional[str] = None
+   experience_level: Optional[str] = None
 
 #Output
 class HintSchema(BaseModel):

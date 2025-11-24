@@ -198,7 +198,7 @@ CRITICAL RESPONSE FORMAT:
 
 def get_helper_prompt(task_description: str, concepts: list, student_code: str,
                       question: str, previous_hints: list, help_count: int, 
-                      known_language: str = None, target_language: str = None) -> str:
+                      known_language: str = None, target_language: str = None, experience_level: str = "intermediate") -> str:
     """
     Agent 3: Live Coding Helper (SMART CONTEXT-AWARE VERSION)
     Provide contextual hints based on student's struggle level

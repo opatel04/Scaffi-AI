@@ -14,6 +14,7 @@ export function TaskPage() {
   const {
     language,
     proficientLanguage,
+    experienceLevel,
     parserOutput,
     scaffold,
     isLoading,
@@ -21,6 +22,7 @@ export function TaskPage() {
     setAssignmentText,
     setLanguage,
     setProficientLanguage,
+    setExperienceLevel,
     setParserOutput,
     setScaffold,
     setStudentCode,
@@ -89,11 +91,12 @@ export function TaskPage() {
     text: string,
     lang: string,
     proficientLang: string,
-    experienceLevel: string
+    expLevel: string
   ) => {
     setAssignmentText(text);
     setLanguage(lang);
     setProficientLanguage(proficientLang);
+    setExperienceLevel(expLevel);
     setIsLoading(true);
     setError(null);
     setProgressStage("parsing");
@@ -105,7 +108,7 @@ export function TaskPage() {
             text,
             lang,
             proficientLang,
-            experienceLevel,
+            expLevel,
             (stage, completed, total) => {
               setProgressStage(stage);
               setProgressTasks({ completed, total });

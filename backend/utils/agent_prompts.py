@@ -206,7 +206,34 @@ def get_helper_prompt(task_description: str, concepts: list, student_code: str,
     """
     concepts_str = ", ".join(concepts)
     previous_hints_str = "\n".join([f"- {hint}" for hint in previous_hints]) if previous_hints else "None"
-    
+    # experiece context for experience based hints
+    experience_context = ""
+    if experience_level.lower() == "beginner":
+        experience_context = """
+
+STUDENT EXPERIENCE: Beginner
+- Use simpler language and avoid jargon
+- Explain concepts more thoroughly
+- Use more concrete examples
+- Break down steps into smaller pieces
+- Be extra patient and encouraging"""
+    elif experience_level.lower() == "advanced":
+        experience_context = """
+
+STUDENT EXPERIENCE: Advanced
+- You can use technical terminology
+- Hints can be more concise
+- Assume familiarity with common patterns
+- Focus on subtle issues or optimizations
+- Less hand-holding needed"""
+    else:  # intermediate
+        experience_context = """
+
+STUDENT EXPERIENCE: Intermediate
+- Balance between explanation and brevity
+- Use technical terms but explain if uncommon
+- Assume basic programming knowledge
+- Standard hint depth"""
     # Language context for better hints
     language_context = ""
     if known_language and target_language:
@@ -227,7 +254,11 @@ For example: "Think of this like Python's 'with' statement" or "Similar to C++'s
 - Ask guiding questions
 - Point them to the right direction without giving away the answer
 - Remind them of relevant concepts they should consider
-- DO NOT show code examples yet"""
+- DO NOT show code examples yet
+- DO NOT ask questions back to the student
+- If they haven't implemented anything yet, suggest a starting point rather than asking a question back.
+- Same way if they have implemented eveything correctly, just give them a nudge forward.
+- DO NOT end with "What specific hint are you asking?" or similar phrases"""
         
     elif help_count == 2:
         hint_level = "moderate"
@@ -235,7 +266,9 @@ For example: "Think of this like Python's 'with' statement" or "Similar to C++'s
 - Explain the approach in pseudocode or plain English
 - Show a SIMILAR example (different variable names, different context)
 - Point out what's missing or incorrect in their approach
-- You can show small code snippets (3-5 lines) but not the full solution"""
+- You can show small code snippets (3-5 lines) but not the full solution
+- DO NOT ask questions back to the student
+- DO NOT end with "Does this help?" or similar phrases"""
         
     else:  # 3+
         hint_level = "strong"
@@ -243,21 +276,22 @@ For example: "Think of this like Python's 'with' statement" or "Similar to C++'s
 - Show a similar working example with DIFFERENT context
 - Explain the logic step-by-step
 - You can show larger code examples but use different variable names and slightly different scenario
-- Still leave some implementation work for them (don't just give the exact answer)"""
+- Still leave some implementation work for them (don't just give the exact answer)
+-DO NOT ask questions back to the student
+- DO NOT end with "Any questions?" or similar phrases"""
     
-    # NEW: Analyze the student's code and question to identify context
-    code_analysis_section = f"""
-ANALYZE THE STUDENT'S SITUATION:
-1. Look at their code to see how far they've gotten
-2. Look for TODO comments to see what they haven't implemented yet
-3. Their question might reference a specific TODO or part of the task
-4. If their question is "I'm stuck on: [specific TODO text]", focus your hint on THAT specific part
 
-SMART CONTEXT DETECTION:
-- If you see "// TODO: Validate room number" in their code AND they're asking about validation, focus on that
-- If multiple TODOs remain, prioritize the one they're asking about
-- Look at what they've already implemented successfully - don't repeat hints about those parts
-- If they're stuck on line X, look at the surrounding code context
+    code_analysis_section = f"""
+CONTEXT AWARENESS (Internal analysis - do not verbalize this to student):
+1. Identify which TODO they're stuck on from their question
+2. See what code they've written vs what's missing
+3. Target your hint ONLY to the specific part they asked about
+
+YOUR RESPONSE RULES:
+- If code is empty: Give ONE nudge to start, then STOP
+- If code is correct: Acknowledge and tell them to move on, then STOP  
+- If specific error: Point it out with fix example, then STOP
+- Otherwise: Give targeted hint for their question, then STOP
 """
     
     return f"""You are a live coding assistant helping a student who is stuck while programming.
@@ -293,12 +327,42 @@ CRITICAL RULES:
 7. If they have a syntax error or misunderstanding, you can point it out directly
 8. **FOCUS on the SPECIFIC part they're asking about, not the entire task**
 9. **If you can identify which TODO they're stuck on from their code/question, address ONLY that TODO**
+10. Use IMPERATIVE/DIRECTIVE language ("Create X", "Add Y") 
+NOT observational language ("I see...", "You're trying...")
 
-SMART HINT TARGETING:
-- If question mentions "validate" or "validation" → Focus on input validation logic
-- If question mentions "check" or "available" → Focus on checking data structures
-- If question mentions "lock" or "thread" → Focus on thread safety
-- If question is vague but you see incomplete TODOs in code → Guide them to the next logical TODO
+CRITICAL: HOW TO END YOUR HINT
+✅ Give your hint, be encouraging, then STOP
+✅ Use statements, not questions
+✅ Format: [Hint] + [Brief encouragement] + END
+
+❌ DO NOT end with questions like:
+   - "What do you think?"
+   - "Does this help?"
+   - "Do you understand?"
+   - "Want me to explain more?"
+   - "Any other questions?"
+
+❌ DO NOT invite further conversation
+
+SPECIAL CASES:
+
+IF student's code is EMPTY or just TODOs:
+- Tell them to start with the first TODO
+- Give one small nudge about the first step
+- Example: "Start by creating a variable to store X. Then move to the next TODO."
+- STOP - no questions
+
+IF student's code looks CORRECT for the current TODO:
+- Acknowledge it's correct
+- Tell them to move to the next TODO or task
+- Example: "This looks correct! You've handled X properly. Move on to the next TODO."
+- STOP - no questions
+
+IF student has a specific error or question:
+- Answer their question directly
+- Show relevant example if needed
+- Example: "The error is because X. Here's the fix: [example]. Try this approach."
+- STOP - no questions
 
 EXAMPLE HINT PROGRESSION:
 
@@ -315,12 +379,10 @@ Hint 3 (strong): "Here's an example of validation with a ticket system (apply th
 ```
 public bool ValidateTicket(int ticketId) {{
     if (ticketId < 1 || ticketId > totalTickets) {{
-        Console.WriteLine("Invalid ticket ID");
         return false;
     }}
     
     if (!availableTickets.Contains(ticketId)) {{
-        Console.WriteLine("Ticket not available");
         return false;
     }}
     

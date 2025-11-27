@@ -184,9 +184,6 @@ Here's the JSON:
 {{"tasks": []}} // This is the breakdown"""
 
 
-# backend/utils/agent_prompts.py
-
-# Add this new function at the end of the file
 
 def get_batch_codegen_prompt(tasks_data: list) -> str:
     """

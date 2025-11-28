@@ -235,7 +235,7 @@ export function TaskPage() {
           <div className="flex h-16 items-center justify-between">
             <Link to="/" className="flex items-center">
               <span className="text-xl font-semibold text-black dark:text-white">
-                Scaffy
+                Scaffi
               </span>
             </Link>
             <div className="flex items-center gap-8">

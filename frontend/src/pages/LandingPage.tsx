@@ -12,7 +12,7 @@ export function LandingPage() {
         <div className="mx-auto max-w-[1440px] px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <Link to="/" className="flex items-center">
-              <span className="text-[15px] font-semibold text-black dark:text-white">Scaffy</span>
+              <span className="text-[15px] font-semibold text-black dark:text-white">Scaffi</span>
             </Link>
             <div className="flex items-center gap-8">
               <DarkModeToggle />
@@ -118,7 +118,7 @@ export function LandingPage() {
               <span className="bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent [-webkit-background-clip:text] [-webkit-text-fill-color:transparent]">complex code</span>
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400">
-              Watch how Scaffy transforms overwhelming assignments into manageable tasks
+              Watch how Scaffi transforms overwhelming assignments into manageable tasks
             </p>
           </div>
           <div className="max-w-5xl mx-auto">
@@ -136,7 +136,7 @@ export function LandingPage() {
               <span className="bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent [-webkit-background-clip:text] [-webkit-text-fill-color:transparent]">accelerated.</span>
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400">
-              While ChatGPT generates code, Scaffy compiles it, runs it, and explains your specific errors.
+              While ChatGPT generates code, Scaffi compiles it, runs it, and explains your specific errors.
             </p>
           </div>
 
@@ -190,10 +190,10 @@ export function LandingPage() {
         <div className="mx-auto max-w-[1440px] px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-[48px] leading-[1.1] font-bold tracking-[-0.02em] text-black dark:text-white mb-4">
-              The Scaffy Difference
+              The Scaffi Difference
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400">
-              Traditional learning vs. the Scaffy approach
+              Traditional learning vs. the Scaffi approach
             </p>
           </div>
 
@@ -204,7 +204,7 @@ export function LandingPage() {
                 <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/20 mb-3">
                   <span className="text-red-600 dark:text-red-400">✕</span>
                 </div>
-                <h3 className="text-xl font-bold text-black dark:text-white">Without Scaffy</h3>
+                <h3 className="text-xl font-bold text-black dark:text-white">Without Scaffi</h3>
               </div>
               <ul className="space-y-3 text-sm text-gray-600 dark:text-gray-400">
                 <li className="flex items-start gap-2">
@@ -232,7 +232,7 @@ export function LandingPage() {
                 <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/20 mb-3">
                   <span className="text-blue-600 dark:text-blue-400">✓</span>
                 </div>
-                <h3 className="text-xl font-bold text-black dark:text-white">With Scaffy</h3>
+                <h3 className="text-xl font-bold text-black dark:text-white">With Scaffi</h3>
               </div>
               <ul className="space-y-3 text-sm text-gray-600 dark:text-gray-400">
                 <li className="flex items-start gap-2">
@@ -281,7 +281,7 @@ export function LandingPage() {
         <div className="mx-auto max-w-[1440px] px-6 lg:px-8 py-12">
           <div className="flex items-center justify-between">
             <p className="text-xs text-gray-600 dark:text-gray-400">
-              © 2025 Scaffy
+              © 2025 Scaffi
             </p>
             <div className="flex items-center gap-6">
               <span className="text-xs text-gray-600 dark:text-gray-400">Built for students learning programming</span>

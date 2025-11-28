@@ -269,7 +269,7 @@ export function EditorPage() {
               </Button>
               <Link to="/" className="flex items-center">
                 <span className="text-xl font-semibold text-black dark:text-white">
-                  Scaffy
+                  Scaffi
                 </span>
               </Link>
             </div>

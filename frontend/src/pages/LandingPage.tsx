@@ -12,7 +12,7 @@ export function LandingPage() {
         <div className="mx-auto max-w-[1440px] px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <Link to="/" className="flex items-center">
-              <span className="text-[15px] font-semibold text-black dark:text-white">Scaffi</span>
+              <span className="text-xl font-semibold text-black dark:text-white">Scaffi</span>
             </Link>
             <div className="flex items-center gap-8">
               <DarkModeToggle />

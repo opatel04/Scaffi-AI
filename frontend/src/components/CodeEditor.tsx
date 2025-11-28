@@ -17,7 +17,7 @@ export function CodeEditor({ initialCode, language, onChange, readOnly = false }
       <div className="mb-3 flex items-center justify-between">
         <h3 className="text-sm font-semibold tracking-tight text-black dark:text-foreground">Code Editor</h3>
       </div>
-      <div className="h-[600px] overflow-hidden rounded-lg border border-black/5 dark:border-border vercel-shadow">
+      <div className="h-[750px] overflow-hidden rounded-lg border border-black/5 dark:border-border vercel-shadow">
         <Editor
           height="100%"
           language={monacoLanguage}

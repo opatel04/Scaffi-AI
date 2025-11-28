@@ -12,6 +12,7 @@ import { TodoList } from "../components/TodoList";
 import { DarkModeToggle } from "../components/DarkModeToggle";
 import { TestCaseResults } from "../components/TestCaseResults";
 import { TestCasesPanel } from "../components/TestCasesPanel";
+import { FileSelector } from "../components/FileSelector";
 import { runCode } from "../api/endpoints";
 import { safeApiCall } from "../api/client";
 import { Button } from "../components/ui/button";
@@ -35,6 +36,8 @@ export function EditorPage() {
     proficientLanguage,
     experienceLevel,
     error,
+    currentFile,
+    fileSessions,
     addCompletedTask,
     toggleCompletedTask,
     setStudentCode,
@@ -44,6 +47,11 @@ export function EditorPage() {
     setShowFeedback,
     updateTestCases,
     setError,
+    initializeFileSessions,
+    saveCurrentFileSession,
+    loadFileSession,
+    toggleFileSessionTodo,
+    updateFileSessionTestResults,
   } = useAppStore();
 
   const [showHelpPanel, setShowHelpPanel] = useState(false);
@@ -61,6 +69,115 @@ export function EditorPage() {
     }
   }, [scaffold, navigate]);
 
+  // Initialize file sessions when scaffold loads
+  useEffect(() => {
+    if (scaffold && scaffold.starter_files && fileSessions.size === 0) {
+      const filenames = Object.keys(scaffold.starter_files);
+      if (filenames.length > 0) {
+        initializeFileSessions(filenames, scaffold.starter_files);
+      }
+    }
+  }, [scaffold, fileSessions.size, initializeFileSessions]);
+
+  // Get list of files and filter data for current file
+  const files = scaffold?.starter_files ? Object.keys(scaffold.starter_files) : [];
+  const hasMultipleFiles = files.length > 1;
+
+  // Get task indices for the current file
+  const getCurrentFileTasks = (): number[] => {
+    if (!parserOutput?.files || !currentFile) return [];
+
+    const taskIndices: number[] = [];
+    let globalTaskIndex = 0;
+
+    for (const file of parserOutput.files) {
+      if (file.filename === currentFile) {
+        // Found our file - add all its task indices
+        for (let i = 0; i < file.tasks.length; i++) {
+          taskIndices.push(globalTaskIndex + i);
+        }
+        break;
+      }
+      // Not our file - skip its tasks
+      globalTaskIndex += file.tasks.length;
+    }
+
+    return taskIndices;
+  };
+
+  // Filter todos for current file
+  const currentFileTodos = (() => {
+    if (!hasMultipleFiles || !parserOutput?.files) {
+      return scaffold?.todo_list || [];
+    }
+
+    const taskIndices = getCurrentFileTasks();
+    return taskIndices.map(idx => scaffold?.todo_list[idx] || '');
+  })();
+
+  // Get completed tasks mapped to local indices for current file
+  const currentFileCompletedTasks = (() => {
+    if (!hasMultipleFiles || !parserOutput?.files) {
+      return completedTasks;
+    }
+
+    const taskIndices = getCurrentFileTasks();
+    const localCompleted = new Set<number>();
+
+    taskIndices.forEach((globalIndex, localIndex) => {
+      if (completedTasks.has(globalIndex)) {
+        localCompleted.add(localIndex);
+      }
+    });
+
+    return localCompleted;
+  })();
+
+  // Filter test cases for current file
+  const currentFileTests = (() => {
+    if (!hasMultipleFiles || !parserOutput?.tests || !currentFile) {
+      return parserOutput?.tests || [];
+    }
+
+    // Filter tests that belong to functions in the current file
+    // We'll use a simple heuristic: if the test references a function that's in this file's tasks
+    const currentFileTasks = getCurrentFileTasks();
+    const currentFileTaskTitles = currentFileTasks.map(idx =>
+      scaffold?.todo_list[idx] || ''
+    );
+
+    return parserOutput.tests.filter(test => {
+      // Check if test function name appears in any of the current file's task titles
+      return currentFileTaskTitles.some(title =>
+        title.toLowerCase().includes(test.function_name.toLowerCase())
+      );
+    });
+  })();
+
+  // Handle file switching
+  const handleFileSelect = (filename: string) => {
+    if (filename === currentFile) return;
+
+    // Save current file's session
+    saveCurrentFileSession();
+
+    // Load the selected file's session
+    loadFileSession(filename);
+  };
+
+  // Handle code changes - update both global state and file session
+  const handleCodeChange = (code: string) => {
+    setStudentCode(code);
+    if (currentFile && hasMultipleFiles) {
+      // Also update the file session's code
+      const state = fileSessions.get(currentFile);
+      if (state) {
+        const sessions = new Map(fileSessions);
+        sessions.set(currentFile, { ...state, code });
+      }
+    }
+  };
+
   const handleRunTests = async () => {
     if (!scaffold || !studentCode) return;
 
@@ -68,8 +185,8 @@ export function EditorPage() {
     setError(null);
 
     try {
-      // Get test cases from parserOutput if available
-      const testCases = parserOutput?.tests || [];
+      // Get test cases for current file
+      const testCases = currentFileTests;
 
       // Run the student's code with test cases
       const result = await safeApiCall(
@@ -83,6 +200,11 @@ export function EditorPage() {
         // Save test results for indicators
         if (result.test_results) {
           setLastTestResults(result.test_results);
+
+          // Save test results to current file session
+          if (currentFile) {
+            updateFileSessionTestResults(currentFile, result.test_results, result);
+          }
         }
 
         // If all tests passed, mark current task as completed
@@ -130,20 +252,20 @@ export function EditorPage() {
     <div className="min-h-screen bg-white dark:bg-black">
       {/* Header */}
       <header className="border-b border-gray-200/60 dark:border-gray-800/60 bg-white dark:bg-black">
-        <div className="mx-auto max-w-[1440px] px-3 lg:px-4">
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center gap-4">
+        <div className="mx-auto max-w-[1600px] px-6 lg:px-8">
+          <div className="flex h-20 items-center justify-between">
+            <div className="flex items-center gap-6">
               <Button
                 variant="ghost"
-                size="sm"
+                size="default"
                 onClick={() => navigate("/task")}
-                className="text-sm"
+                className="text-base -ml-3"
               >
-                <ArrowLeft className="mr-2 h-4 w-4" />
+                <ArrowLeft className="mr-2 h-5 w-5" />
                 Back to Tasks
               </Button>
               <Link to="/" className="flex items-center">
-                <span className="text-[15px] font-semibold text-black dark:text-white">
+                <span className="text-xl font-semibold text-black dark:text-white">
                   Scaffy
                 </span>
               </Link>
@@ -157,8 +279,8 @@ export function EditorPage() {
 
       <div className="flex h-[calc(100vh-80px)] overflow-hidden">
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col min-w-0 transition-all duration-300">
-          <div className="flex-1 overflow-y-auto mx-auto max-w-[1440px] w-full px-3 py-8 lg:px-4">
+        <div className="flex-1 flex flex-col min-w-0 transition-all duration-300 overflow-y-auto overflow-x-hidden scroll-smooth" style={{ scrollbarGutter: 'stable' }}>
+          <div className="mx-auto max-w-[1600px] w-full px-6 py-8 lg:px-8">
             {/* Error Display */}
             {error && (
               <div className="mb-6 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20 p-4">
@@ -170,24 +292,35 @@ export function EditorPage() {
 
             {/* Progress Indicator */}
             {scaffold && (
-              <div className="mb-4">
-                <ProgressIndicator
-                  totalTasks={scaffold.todo_list.length}
-                  completedTasks={completedTasks.size}
-                  currentTask={currentTask}
-                />
-              </div>
+              <ProgressIndicator
+                totalTasks={scaffold.todo_list.length}
+                completedTasks={completedTasks.size}
+                currentTask={currentTask}
+              />
+            )}
+
+            {/* File Selector - only show if multiple files */}
+            {hasMultipleFiles && files.length > 0 && (
+              <FileSelector
+                files={files}
+                currentFile={currentFile}
+                onFileSelect={handleFileSelect}
+                fileHasChanges={(filename) => {
+                  const session = fileSessions.get(filename);
+                  return session ? session.code !== (scaffold?.starter_files?.[filename] || '') : false;
+                }}
+              />
             )}
 
             {/* Main Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               {/* Left Column - Code Editor */}
-              <div className="lg:col-span-2">
+              <div className="lg:col-span-3">
                 <div className="mb-6">
                   <CodeEditor
                     initialCode={studentCode}
                     language={language}
-                    onChange={setStudentCode}
+                    onChange={handleCodeChange}
                   />
                 </div>
 
@@ -249,8 +382,8 @@ export function EditorPage() {
                   </div>
 
                   {/* Test Cases Panel - Shows available test cases BEFORE running OR results AFTER running */}
-                  {parserOutput?.tests && parserOutput.tests.length > 0 && (
-                    <div className="mt-3 h-[280px]">
+                  {currentFileTests && currentFileTests.length > 0 && (
+                    <div className="mt-3 h-[400px]">
                       {runnerResult && runnerResult.test_results && runnerResult.test_results.length > 0 ? (
                         // Show test results after running
                         <div className="h-full rounded-lg border border-gray-200 dark:border-gray-800">
@@ -264,7 +397,7 @@ export function EditorPage() {
                       ) : (
                         // Show test cases before running - editable
                         <TestCasesPanel
-                          testCases={parserOutput.tests}
+                          testCases={currentFileTests}
                           onTestCasesChange={updateTestCases}
                           testResults={lastTestResults || undefined}
                         />
@@ -276,15 +409,26 @@ export function EditorPage() {
 
               {/* Right Column - Task List */}
               <div className="lg:col-span-1">
-                {scaffold && scaffold.todo_list && (
+                {scaffold && currentFileTodos && (
                   <TodoList
-                    todos={scaffold.todo_list}
+                    todos={currentFileTodos}
                     currentTask={currentTask}
                     onTaskSelect={(taskIndex: number) => {
-                      // Toggle task completion when checkbox is clicked
-                      toggleCompletedTask(taskIndex);
+                      // For multi-file mode, toggle the todo in the file session
+                      if (hasMultipleFiles && currentFile) {
+                        // Get the global task index for this file's local task index
+                        const globalTaskIndices = getCurrentFileTasks();
+                        const globalTaskIndex = globalTaskIndices[taskIndex];
+                        if (globalTaskIndex !== undefined) {
+                          toggleFileSessionTodo(currentFile, globalTaskIndex);
+                          toggleCompletedTask(globalTaskIndex);
+                        }
+                      } else {
+                        // Single file mode - use standard toggle
+                        toggleCompletedTask(taskIndex);
+                      }
                     }}
-                    completedTasks={completedTasks}
+                    completedTasks={currentFileCompletedTasks}
                     selectedTaskForExamples={selectedTaskForExamples}
                     onTaskSelectForExamples={(taskIndex: number) => {
                       // Only change task selection if example panel is already open
@@ -349,6 +493,7 @@ export function EditorPage() {
                 knownLanguage={proficientLanguage}
                 onClose={() => setShowHelpPanel(false)}
                 selectedTaskForExamples={selectedTaskForExamples}
+                currentFileTasks={hasMultipleFiles ? getCurrentFileTasks() : undefined}
               />
             )}
           </div>

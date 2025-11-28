@@ -12,9 +12,10 @@ interface GetConceptExampleProps {
   knownLanguage?: string;
   onClose: () => void;
   selectedTaskForExamples?: number;
+  currentFileTasks?: number[]; // Global task indices for current file
 }
 
-export function GetConceptExample({ language, currentTask, scaffold, knownLanguage, onClose, selectedTaskForExamples }: GetConceptExampleProps) {
+export function GetConceptExample({ language, currentTask, scaffold, knownLanguage, onClose, selectedTaskForExamples, currentFileTasks }: GetConceptExampleProps) {
   const [selectedConcept, setSelectedConcept] = useState<string | null>(null);
   const [example, setExample] = useState<{
     concept: string;
@@ -28,9 +29,31 @@ export function GetConceptExample({ language, currentTask, scaffold, knownLangua
   // Use selected task for examples if provided, otherwise use current task
   const taskIndex = selectedTaskForExamples !== undefined ? selectedTaskForExamples : currentTask;
 
-  // Get concepts for the selected task
-  const concepts = scaffold?.task_concepts?.[`task_${taskIndex}`] || [];
-  const taskDescription = scaffold?.todo_list?.[taskIndex] || 'Current task';
+  // Get concepts for the selected task or all tasks in current file
+  let concepts: string[] = [];
+  let taskDescription = 'Current task';
+
+  if (currentFileTasks && currentFileTasks.length > 0) {
+    // Multi-file mode: collect concepts from all tasks in current file
+    const allConcepts = new Set<string>();
+    currentFileTasks.forEach(globalTaskIndex => {
+      const taskConcepts = scaffold?.task_concepts?.[`task_${globalTaskIndex}`] || [];
+      taskConcepts.forEach(concept => allConcepts.add(concept));
+    });
+    concepts = Array.from(allConcepts);
+
+    // Use the local task index to get task description
+    const localTaskIndex = currentFileTasks.indexOf(taskIndex);
+    if (localTaskIndex !== -1 && currentFileTasks[localTaskIndex] !== undefined) {
+      taskDescription = scaffold?.todo_list?.[currentFileTasks[localTaskIndex]] || 'Current file tasks';
+    } else {
+      taskDescription = 'Current file tasks';
+    }
+  } else {
+    // Single file mode: use the selected task's concepts
+    concepts = scaffold?.task_concepts?.[`task_${taskIndex}`] || [];
+    taskDescription = scaffold?.todo_list?.[taskIndex] || 'Current task';
+  }
 
   const handleGetExample = async (concept: string) => {
     setSelectedConcept(concept);
@@ -68,11 +91,15 @@ export function GetConceptExample({ language, currentTask, scaffold, knownLangua
             <Code2 className="h-4 w-4 text-black dark:text-foreground" />
             <h3 className="text-sm font-semibold tracking-tight text-black dark:text-foreground">Concept Examples</h3>
           </div>
-          {selectedTaskForExamples !== undefined && selectedTaskForExamples !== currentTask && (
+          {currentFileTasks && currentFileTasks.length > 0 ? (
+            <p className="text-xs text-gray-500 dark:text-gray-400 ml-6">
+              All tasks in current file
+            </p>
+          ) : selectedTaskForExamples !== undefined && selectedTaskForExamples !== currentTask ? (
             <p className="text-xs text-gray-500 dark:text-gray-400 ml-6">
               Task {taskIndex + 1}
             </p>
-          )}
+          ) : null}
         </div>
         <Button variant="ghost" size="icon" onClick={onClose} className="h-7 w-7">
           <X className="h-4 w-4" />

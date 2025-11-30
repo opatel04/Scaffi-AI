@@ -217,6 +217,93 @@ class ParserAgent:
 
         return TaskBreakdownSchema(**task_breakdown_result)
 
+    def generate_tests_from_code(self, code: str, language: str, filename: str, assignment_description: str = None) -> List[TestCase]:
+        """
+        Generate test cases from user's completed code.
+
+        Args:
+            code: User's completed code
+            language: Programming language
+            filename: Filename for context
+            assignment_description: Optional assignment description for context
+
+        Returns:
+            List of TestCase objects
+        """
+        try:
+            logger.info("=" * 80)
+            logger.info(f"GENERATING TESTS FROM USER CODE: {filename}")
+            logger.info(f"Language: {language}")
+            logger.info(f"Code length: {len(code)} chars")
+            logger.info("=" * 80)
+
+            # Build context from code and assignment
+            if assignment_description:
+                context = f"Assignment: {assignment_description}\n\nUser's Code:\n{code}"
+            else:
+                context = f"User's Code:\n{code}"
+
+            # Create a minimal file structure for the test generation prompt
+            file_dict = {
+                'filename': filename,
+                'purpose': 'User-provided implementation',
+                'code': code
+            }
+
+            prompt = get_test_generation_prompt(context, [file_dict], language)
+
+            # Try to generate test cases with retries
+            for attempt in range(self.max_retries):
+                try:
+                    logger.info(f"Test generation attempt {attempt + 1}/{self.max_retries}")
+                    response_text = self.client.generate_response(prompt, max_tokens=2500)
+
+                    logger.info(f"Received response (length: {len(response_text)} chars)")
+
+                    # Extract JSON array from response
+                    test_data = extract_json_from_response(response_text)
+
+                    # If response is a dict with 'tests' key, extract it
+                    if isinstance(test_data, dict) and 'tests' in test_data:
+                        test_data = test_data['tests']
+
+                    # Ensure it's a list
+                    if not isinstance(test_data, list):
+                        raise ValueError(f"Test data must be a list, got {type(test_data)}")
+
+                    # Validate and create TestCase objects
+                    test_cases = []
+                    for idx, test in enumerate(test_data):
+                        try:
+                            test_case = TestCase(**test)
+                            test_cases.append(test_case)
+                        except Exception as e:
+                            logger.warning(f"Skipping invalid test case {idx}: {e}")
+                            continue
+
+                    logger.info("=" * 80)
+                    logger.info(f"✓ Successfully generated {len(test_cases)} test cases from user code")
+                    logger.info("=" * 80)
+                    return test_cases
+
+                except (ValueError, KeyError, json.JSONDecodeError) as e:
+                    logger.warning(f"Test generation attempt {attempt + 1} failed: {str(e)}")
+
+                    if attempt < self.max_retries - 1:
+                        prompt += f"\n\nIMPORTANT: Previous attempt failed. Ensure your response is ONLY a valid JSON array starting with [ and ending with ]."
+                    continue
+
+            logger.error("=" * 80)
+            logger.error(f"✗ FAILED to generate test cases after all retries")
+            logger.error("=" * 80)
+            return []
+
+        except Exception as e:
+            logger.error("=" * 80)
+            logger.error(f"✗ UNEXPECTED ERROR generating test cases: {str(e)}")
+            logger.error("=" * 80)
+            return []
+
 parser_agent = None
 
 def get_parser_agent() -> ParserAgent:

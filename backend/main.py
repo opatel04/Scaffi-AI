@@ -20,7 +20,9 @@ from pyd_models.schemas import (
     ConceptExampleRequest,
     ConceptExampleResponse,
     BatchBoilerPlateCodeSchema,
-    BatchStarterCodeResponse
+    BatchStarterCodeResponse,
+    GenerateTestsRequest,
+    GenerateTestsResponse
 )
 
 # Import agents and services
@@ -366,6 +368,50 @@ async def extract_pdf_text(file: UploadFile = File(...)):
         raise HTTPException(
             status_code=500,
             detail=f"Failed to extract text from PDF: {str(e)}"
+        )
+
+
+# ============================================
+# GENERATE TESTS FROM USER CODE
+# ============================================
+
+@app.post("/generate-tests", response_model=GenerateTestsResponse)
+async def generate_tests(request: GenerateTestsRequest):
+    """
+    Generate test cases from user's completed code
+
+    Takes the user's code and generates appropriate test cases
+    using the same AI model as the initial test generation
+    """
+    try:
+        logger.info(f"Received test generation request for {request.filename}")
+        logger.info(f"Language: {request.language}, Code length: {len(request.code)} chars")
+
+        # Generate tests using parser agent
+        test_cases = parser_agent.generate_tests_from_code(
+            code=request.code,
+            language=request.language,
+            filename=request.filename,
+            assignment_description=request.assignment_description
+        )
+
+        if test_cases:
+            message = f"Successfully generated {len(test_cases)} test cases"
+            logger.info(message)
+        else:
+            message = "No test cases were generated. Please check your code and try again."
+            logger.warning(message)
+
+        return GenerateTestsResponse(
+            tests=test_cases,
+            message=message
+        )
+
+    except Exception as e:
+        logger.error(f"Test generation error: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to generate tests: {str(e)}"
         )
 
 

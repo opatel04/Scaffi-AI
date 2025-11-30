@@ -129,6 +129,7 @@ class CodeExecutionRequest(BaseModel):
 # Individual Test Result
 class TestResult(BaseModel):
     test_name: str
+    function_name: Optional[str] = None  # Function being tested
     passed: bool
     input_data: str
     expected_output: str
@@ -174,5 +175,19 @@ class ConceptExampleResponse(BaseModel):
     explanation: str
     comparison_to_known: Optional[str] = None  # If known_language provided
 
+
+#--------Schema for Test Generation from User Code--------#
+
+#Input
+class GenerateTestsRequest(BaseModel):
+    code: str  # User's completed code
+    language: str  # Programming language
+    filename: str  # Filename for context
+    assignment_description: Optional[str] = None  # Optional: original assignment for context
+
+#Output
+class GenerateTestsResponse(BaseModel):
+    tests: List[TestCase]
+    message: str
 
 

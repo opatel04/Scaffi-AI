@@ -346,6 +346,7 @@ class TestRunner {{
                     # Create test result
                     test_result = TestResult(
                         test_name=test_name,
+                        function_name=function_name,  # Add function name
                         passed=passed,
                         input_data=input_data,
                         expected_output=expected_output,
@@ -358,6 +359,7 @@ class TestRunner {{
                     logger.error(f"Error running test case '{test_name}': {e}")
                     test_results.append(TestResult(
                         test_name=test_case.get('test_name', 'Unknown Test'),
+                        function_name=test_case.get('function_name', 'Unknown'),  # Add function name
                         passed=False,
                         input_data=test_case.get('input_data', ''),
                         expected_output=test_case.get('expected_output', ''),

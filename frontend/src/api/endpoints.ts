@@ -8,6 +8,7 @@ import type {
   ScaffoldPackage,
   RunnerResult,
   TestResult,
+  TestCase,
 } from "../types";
 
 // Health check
@@ -110,6 +111,24 @@ export async function runCode(
       language,
       stdin: stdin || null,
       test_cases: testCases || null,
+    }),
+  });
+}
+
+// Generate test cases from user's code
+export async function generateTestsFromCode(
+  code: string,
+  language: string,
+  filename: string,
+  assignmentDescription?: string
+): Promise<{ tests: TestCase[]; message: string }> {
+  return apiCall("/generate-tests", {
+    method: "POST",
+    body: JSON.stringify({
+      code,
+      language,
+      filename,
+      assignment_description: assignmentDescription || null,
     }),
   });
 }

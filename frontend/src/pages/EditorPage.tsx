@@ -13,10 +13,10 @@ import { DarkModeToggle } from "../components/DarkModeToggle";
 import { TestCaseResults } from "../components/TestCaseResults";
 import { TestCasesPanel } from "../components/TestCasesPanel";
 import { FileSelector } from "../components/FileSelector";
-import { runCode } from "../api/endpoints";
+import { runCode, generateTestsFromCode } from "../api/endpoints";
 import { safeApiCall } from "../api/client";
 import { Button } from "../components/ui/button";
-import { ArrowLeft, Lightbulb, Code2, Trash2, X } from "lucide-react";
+import { ArrowLeft, Lightbulb, Code2, Trash2, X, Sparkles } from "lucide-react";
 import { AutoSaveIndicator } from "../components/SaveIndicator";
 
 export function EditorPage() {
@@ -64,6 +64,7 @@ export function EditorPage() {
   >(undefined);
   const [selectedTaskForExamples, setSelectedTaskForExamples] = useState<number | undefined>(undefined);
   const [lastTestResults, setLastTestResults] = useState<any[] | null>(null);
+  const [isGeneratingTests, setIsGeneratingTests] = useState(false);
 
   // Track previous currentFile to detect changes
   const prevCurrentFileRef = useRef<string | null>(null);
@@ -261,6 +262,36 @@ export function EditorPage() {
   const handleContinue = () => {
     setShowFeedback(false);
     setFeedback(null);
+  };
+
+  const handleGenerateTests = async () => {
+    if (!studentCode || !currentFile) return;
+
+    setIsGeneratingTests(true);
+    setError(null);
+
+    try {
+      // Get assignment description from scaffold if available
+      const assignmentDescription = parserOutput?.overview || undefined;
+
+      // Generate tests from user's code
+      const result = await safeApiCall(
+        () => generateTestsFromCode(studentCode, language, currentFile, assignmentDescription),
+        "Failed to generate tests"
+      );
+
+      if (result && result.tests && result.tests.length > 0) {
+        // Update test cases in store
+        updateTestCases(result.tests);
+        console.log(`✓ Generated ${result.tests.length} test cases`);
+      } else {
+        setError(result?.message || "No tests were generated. Please check your code.");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred generating tests");
+    } finally {
+      setIsGeneratingTests(false);
+    }
   };
 
   // Keyboard shortcut for running tests
@@ -467,11 +498,31 @@ export function EditorPage() {
                         Examples
                       </Button>
                     </div>
-                    <RunButton
-                      onClick={handleRunTests}
-                      loading={isRunning}
-                      disabled={!studentCode || isRunning}
-                    />
+                    <div className="flex items-center gap-2">
+                      <Button
+                        onClick={handleGenerateTests}
+                        disabled={isGeneratingTests || !studentCode}
+                        size="lg"
+                        className="bg-black text-white hover:bg-black/90 transition-all duration-150"
+                      >
+                        {isGeneratingTests ? (
+                          <>
+                            <Sparkles className="mr-2 h-4 w-4 animate-spin" />
+                            Generating Tests...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="mr-2 h-4 w-4" />
+                            Generate Tests
+                          </>
+                        )}
+                      </Button>
+                      <RunButton
+                        onClick={handleRunTests}
+                        loading={isRunning}
+                        disabled={!studentCode || isRunning}
+                      />
+                    </div>
                   </div>
 
                   {/* Compilation Error Section - Show when error exists and all tests have no output */}

@@ -99,6 +99,7 @@ export interface HintSchema {
 // Test Result (from backend)
 export interface TestResult {
   test_name: string;
+  function_name?: string;  // Function being tested
   passed: boolean;
   input_data: string;
   expected_output: string;

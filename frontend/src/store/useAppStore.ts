@@ -102,9 +102,36 @@ export const useAppStore = create<AppStore>()(
       setProficientLanguage: (language) => set({ proficientLanguage: language }),
       setExperienceLevel: (level) => set({ experienceLevel: level }),
       setParserOutput: (output) => set({ parserOutput: output }),
-      updateTestCases: (testCases) => set((state) => ({
-        parserOutput: state.parserOutput ? { ...state.parserOutput, tests: testCases } : null
-      })),
+      updateTestCases: (testCases) => set((state) => {
+        if (!state.parserOutput) return {};
+
+        // Handle multi-file structure (tests are per-file)
+        if (state.parserOutput.files && state.parserOutput.files.length > 0) {
+          const updatedFiles = state.parserOutput.files.map(file => {
+            // Update tests for current file
+            if (file.filename === state.currentFile) {
+              return { ...file, tests: testCases };
+            }
+            // For single-file assignments (only one file in array)
+            if (state.parserOutput!.files!.length === 1) {
+              return { ...file, tests: testCases };
+            }
+            return file;
+          });
+
+          return {
+            parserOutput: {
+              ...state.parserOutput,
+              files: updatedFiles
+            }
+          };
+        }
+
+        // Fallback to old structure (legacy support)
+        return {
+          parserOutput: { ...state.parserOutput, tests: testCases }
+        };
+      }),
       setScaffold: (scaffold) => set({
         scaffold,
         // Reset progress when new scaffold is loaded

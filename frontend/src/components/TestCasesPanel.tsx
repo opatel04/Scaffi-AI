@@ -14,9 +14,25 @@ export function TestCasesPanel({ testCases, onTestCasesChange, testResults }: Te
   const [editingTest, setEditingTest] = useState<number | null>(null);
   const [editedTests, setEditedTests] = useState<TestCase[]>(testCases);
 
+<<<<<<< Updated upstream
   if (!testCases || testCases.length === 0) {
     return null;
   }
+=======
+  // Sync editedTests with testCases prop when it changes (e.g., after generating new tests)
+  // BUT only if we're not currently editing (to prevent overwriting user's changes)
+  useEffect(() => {
+    if (editingTest === null) {
+      console.log("🔄 TestCasesPanel: testCases prop changed, updating editedTests");
+      console.log("  - New testCases length:", testCases.length);
+      setEditedTests(testCases);
+    } else {
+      console.log("⏸️  TestCasesPanel: testCases changed but user is editing, skipping sync");
+    }
+  }, [testCases, editingTest]);
+
+  const hasTests = testCases && testCases.length > 0;
+>>>>>>> Stashed changes
 
   // Helper function to get test result for a test case
   const getTestResult = (testName: string): TestResult | undefined => {

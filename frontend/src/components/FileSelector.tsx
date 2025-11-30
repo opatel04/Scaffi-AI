@@ -102,23 +102,34 @@ export function FileSelector({
         </div>
 
         {/* Download button with gradient shadow on the left */}
-        {files.length > 1 && fileContents && (
+        {fileContents && (
           <div className="relative flex-shrink-0 pl-4">
-            {/* Gradient shadow overlay */}
-            <div className="absolute left-0 top-0 bottom-0 w-12 pointer-events-none bg-gradient-to-r from-white via-white to-transparent dark:from-black dark:via-black dark:to-transparent" style={{ marginLeft: '-3rem' }}></div>
+            {/* Gradient shadow overlay - only show for multiple files */}
+            {files.length > 1 && (
+              <div className="absolute left-0 top-0 bottom-0 w-12 pointer-events-none bg-gradient-to-r from-white via-white to-transparent dark:from-black dark:via-black dark:to-transparent" style={{ marginLeft: '-3rem' }}></div>
+            )}
 
             <Button
               variant="outline"
               size="default"
-              onClick={() => setShowDownloadMenu(!showDownloadMenu)}
+              onClick={() => {
+                // For single file, download directly
+                if (files.length === 1 && fileContents && files[0]) {
+                  downloadFile(files[0], fileContents[files[0]]);
+                } else {
+                  // For multiple files, show dropdown menu
+                  setShowDownloadMenu(!showDownloadMenu);
+                }
+              }}
               className="text-sm border-gray-200 dark:border-gray-800 px-5 py-2 bg-white dark:bg-black relative z-10"
             >
               <Download className="mr-2 h-4 w-4" />
-              Download Files
-              <ChevronDown className="ml-2 h-3.5 w-3.5" />
+              {files.length > 1 ? 'Download Files' : 'Download File'}
+              {files.length > 1 && <ChevronDown className="ml-2 h-3.5 w-3.5" />}
             </Button>
 
-            {showDownloadMenu && (
+            {/* Only show dropdown menu for multiple files */}
+            {showDownloadMenu && files.length > 1 && (
               <>
                 <div
                   className="fixed inset-0 z-10"

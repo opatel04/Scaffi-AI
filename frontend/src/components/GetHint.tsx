@@ -24,6 +24,27 @@ export function GetHint({ code, language, currentTask, scaffold, currentTodoInde
   const [isLoading, setIsLoading] = useState(false);
   const [helpCount, setHelpCount] = useState(0);
   const [previousHints, setPreviousHints] = useState<string[]>([]);
+  const [lastCodeSnapshot, setLastCodeSnapshot] = useState<string>('');
+
+  // Reset hint state when code changes significantly (user made edits)
+  useEffect(() => {
+    const currentCode = typeof code === 'string' ? code : String(code || '');
+
+    // If code changed significantly, reset the hint conversation
+    if (lastCodeSnapshot && currentCode !== lastCodeSnapshot) {
+      const changePercentage = Math.abs(currentCode.length - lastCodeSnapshot.length) / Math.max(lastCodeSnapshot.length, 1);
+
+      // If code changed by more than 5%, reset hints
+      if (changePercentage > 0.05 || !currentCode.includes(lastCodeSnapshot.substring(0, 100))) {
+        console.log("💡 Code changed significantly - resetting hint state");
+        setHint(null);
+        setHelpCount(0);
+        setPreviousHints([]);
+      }
+    }
+
+    setLastCodeSnapshot(currentCode);
+  }, [code, lastCodeSnapshot]);
 
   const handleGetHint = async (questionOverride?: string) => {
     if (!scaffold) return;
@@ -33,9 +54,9 @@ export function GetHint({ code, language, currentTask, scaffold, currentTodoInde
       // Get current TODO if available
       const todos = scaffold.task_todos?.[`task_${currentTask}`] || scaffold.todos || [];
       const currentTodo = todos[currentTodoIndex] || null;
-      
+
       // Build question - use override if provided, otherwise use TODO or default
-      const question = questionOverride || (currentTodo 
+      const question = questionOverride || (currentTodo
         ? `I'm stuck on: ${currentTodo}`
         : `I'm stuck on task ${currentTask + 1}`);
 
@@ -45,6 +66,12 @@ export function GetHint({ code, language, currentTask, scaffold, currentTodoInde
 
       // Ensure all values are serializable (strings/arrays/numbers only)
       const cleanCode = typeof code === 'string' ? code : String(code || '');
+      console.log("💡 GetHint - Sending code to backend:");
+      console.log("  - Code length:", cleanCode.length);
+      console.log("  - First 100 chars:", cleanCode.substring(0, 100));
+      console.log("  - Help count:", helpCount + 1);
+      console.log("  - Previous hints count:", previousHints.length);
+
       const cleanConcepts = Array.isArray(concepts) ? concepts.map(c => typeof c === 'string' ? c : String(c)) : [];
       const cleanQuestion = typeof question === 'string' ? question : String(question || '');
       const cleanTaskDescription = typeof taskDescription === 'string' ? taskDescription : String(taskDescription || '');

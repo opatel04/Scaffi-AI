@@ -455,8 +455,8 @@ export function EditorPage() {
               />
             )}
 
-            {/* File Selector - only show if multiple files */}
-            {hasMultipleFiles && files.length > 0 && (
+            {/* File Selector - show for all assignments (single or multiple files) */}
+            {files.length > 0 && (
               <FileSelector
                 files={files}
                 currentFile={currentFile}

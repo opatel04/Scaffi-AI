@@ -34,7 +34,6 @@ export function ProcessingProgress({ stage, tasksTotal = 0, tasksCompleted = 0 }
             {stages.map((stageItem, index) => {
               const isComplete = index < currentStageIndex;
               const isCurrent = index === currentStageIndex;
-              const isPending = index > currentStageIndex;
 
               return (
                 <div

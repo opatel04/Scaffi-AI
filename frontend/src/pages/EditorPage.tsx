@@ -341,8 +341,20 @@ export function EditorPage() {
 
   const allTestsPassed =
     runnerResult?.tests_failed === 0 &&
+    (runnerResult?.tests_passed ?? 0) > 0 &&
     scaffold &&
     completedTasks.size === scaffold.todo_list.length;
+
+  // Debug logging for success celebration
+  useEffect(() => {
+    console.log("🎉 Success check:", {
+      allTestsPassed,
+      tests_failed: runnerResult?.tests_failed,
+      tests_passed: runnerResult?.tests_passed,
+      completedTasks: completedTasks.size,
+      totalTasks: scaffold?.todo_list.length,
+    });
+  }, [allTestsPassed, runnerResult, completedTasks, scaffold]);
 
   if (!scaffold) {
     return null;

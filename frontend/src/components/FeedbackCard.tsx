@@ -1,4 +1,3 @@
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { X, Lightbulb } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -12,11 +11,6 @@ export function FeedbackCard({ feedback, attemptNumber, onDismiss }: FeedbackCar
   };
 
   const hintLevel = getHintLevel();
-  const hintColorClass = {
-    1: 'text-hint-level-1',
-    2: 'text-hint-level-2',
-    3: 'text-hint-level-3',
-  }[hintLevel];
 
   const hintColors = {
     1: 'bg-blue-50 border-blue-100 text-blue-900',

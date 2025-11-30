@@ -1,6 +1,6 @@
 import type { ProgressProps } from '../types';
 
-export function ProgressIndicator({ totalTasks, completedTasks, currentTask }: ProgressProps) {
+export function ProgressIndicator({ totalTasks, completedTasks }: ProgressProps) {
   const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
   const isComplete = totalTasks > 0 && completedTasks === totalTasks;
 

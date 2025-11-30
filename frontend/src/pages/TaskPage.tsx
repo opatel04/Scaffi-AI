@@ -7,7 +7,7 @@ import { parseAndScaffold, getConceptExample } from "../api/endpoints";
 import { safeApiCall } from "../api/client";
 import { Button } from "../components/ui/button";
 import { DarkModeToggle } from "../components/DarkModeToggle";
-import { ArrowRight, Loader2, Eye, X, Lightbulb } from "lucide-react";
+import { ArrowRight, Loader2, Eye, X, Lightbulb, AlertTriangle } from "lucide-react";
 
 export function TaskPage() {
   const navigate = useNavigate();
@@ -315,6 +315,28 @@ export function TaskPage() {
                   Continue to Editor
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
+              </div>
+            </div>
+
+            {/* Important Notice Banner */}
+            <div className="rounded-lg border-2 border-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-600 p-5">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 text-yellow-600 dark:text-yellow-500 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-yellow-900 dark:text-yellow-100 mb-2">
+                    Important Notice
+                  </h3>
+                  <div className="space-y-2 text-yellow-800 dark:text-yellow-200">
+                    <p className="text-[15px] leading-relaxed">
+                      <strong>Boilerplate Code Accuracy:</strong> Generated boilerplate code is approximately 95% accurate.
+                      Please review and verify <strong>NAMING CONVENTIONS</strong>, syntax, <strong>BRACKETS</strong>, and indentation before running your code.
+                    </p>
+                    <p className="text-[15px] leading-relaxed">
+                      <strong>Testing Limitations:</strong> We cannot test OS builds, kernel modules, hardware-dependent code,
+                      or programs requiring system-level access. Standard application code and algorithms are fully supported.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
 

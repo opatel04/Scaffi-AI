@@ -32,6 +32,7 @@ export function TestCasesPanel({
   // BUT only if we're not currently editing (to prevent overwriting user's changes)
   useEffect(() => {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     console.log(
       "🔄 TestCasesPanel: testCases prop changed, updating editedTests"
     );
@@ -39,6 +40,8 @@ export function TestCasesPanel({
     setEditedTests(testCases);
   }, [testCases]);
 =======
+=======
+>>>>>>> Stashed changes
     if (editingTest === null) {
       console.log("🔄 TestCasesPanel: testCases prop changed, updating editedTests");
       console.log("  - New testCases length:", testCases.length);
@@ -47,6 +50,9 @@ export function TestCasesPanel({
       console.log("⏸️  TestCasesPanel: testCases changed but user is editing, skipping sync");
     }
   }, [testCases, editingTest]);
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
   const hasTests = testCases && testCases.length > 0;

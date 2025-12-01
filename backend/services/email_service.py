@@ -24,6 +24,17 @@ class EmailService:
         self.smtp_password = os.getenv("SMTP_PASSWORD")  # App password
         self.recipient_email = os.getenv("FEEDBACK_EMAIL", "atharvazaveri4@gmail.com")
         
+        # Debug logging
+        logger.info("=" * 80)
+        logger.info("EMAIL SERVICE CONFIGURATION:")
+        logger.info(f"SMTP Host: {self.smtp_host}")
+        logger.info(f"SMTP Port: {self.smtp_port}")
+        logger.info(f"SMTP User: {self.smtp_user}")
+        logger.info(f"SMTP Password: {'*' * len(self.smtp_password) if self.smtp_password else 'NOT SET'}")
+        logger.info(f"Recipient: {self.recipient_email}")
+        logger.info(f"SMTP Configured: {bool(self.smtp_user and self.smtp_password)}")
+        logger.info("=" * 80)
+        
     def send_feedback(self, name: str, email: str, feedback: str) -> bool:
         """
         Send feedback email

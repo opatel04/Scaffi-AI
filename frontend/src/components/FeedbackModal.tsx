@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { X } from 'lucide-react';
 import { Button } from './ui/button';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+
 interface FeedbackModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -22,26 +24,35 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
     setSubmitStatus('idle');
 
     try {
-      // Send email using a simple mailto link or backend endpoint
-      const subject = encodeURIComponent(`Scaffi Feedback from ${name}`);
-      const body = encodeURIComponent(
-        `Name: ${name}\nEmail: ${email}\n\nFeedback:\n${feedback}`
-      );
-      
-      // Option 1: Open mailto (simple, no backend needed)
-      window.location.href = `mailto:atharvazaveri4@gmail.com?subject=${subject}&body=${body}`;
-      
-      // Show success message
-      setSubmitStatus('success');
-      
-      // Reset form after 2 seconds
-      setTimeout(() => {
-        setName('');
-        setEmail('');
-        setFeedback('');
-        setSubmitStatus('idle');
-        onClose();
-      }, 2000);
+      // Send feedback to backend API
+      const response = await fetch(`${API_BASE_URL}/send-feedback`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          feedback,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setSubmitStatus('success');
+        
+        // Reset form after 2 seconds
+        setTimeout(() => {
+          setName('');
+          setEmail('');
+          setFeedback('');
+          setSubmitStatus('idle');
+          onClose();
+        }, 2000);
+      } else {
+        setSubmitStatus('error');
+      }
     } catch (error) {
       console.error('Error submitting feedback:', error);
       setSubmitStatus('error');

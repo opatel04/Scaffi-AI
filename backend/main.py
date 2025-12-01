@@ -36,7 +36,9 @@ from pyd_models.schemas import (
     BatchBoilerPlateCodeSchema,
     BatchStarterCodeResponse,
     GenerateTestsRequest,
-    GenerateTestsResponse
+    GenerateTestsResponse,
+    FeedbackRequest,
+    FeedbackResponse
 )
 
 # Import agents and services
@@ -46,6 +48,7 @@ from agents.live_helper import LiveHelperAgent
 from agents.concept_example import ConceptExampleAgent
 from services.code_runner import get_code_runner
 from services.pdf_extractor import get_pdf_extractor
+from services.email_service import get_email_service
 
 load_dotenv()
 
@@ -454,6 +457,46 @@ async def generate_tests(request: GenerateTestsRequest):
         raise HTTPException(
             status_code=500,
             detail=f"Failed to generate tests: {str(e)}"
+        )
+
+
+# ============================================
+# FEEDBACK
+# ============================================
+
+@app.post("/send-feedback", response_model=FeedbackResponse)
+async def send_feedback(request: FeedbackRequest):
+    """
+    Send user feedback via email
+    
+    Sends feedback to the configured email address (atharvazaveri4@gmail.com)
+    """
+    try:
+        logger.info(f"Received feedback from {request.name} ({request.email})")
+        
+        email_service = get_email_service()
+        success = email_service.send_feedback(
+            name=request.name,
+            email=request.email,
+            feedback=request.feedback
+        )
+        
+        if success:
+            return FeedbackResponse(
+                success=True,
+                message="Thank you for your feedback! We'll review it soon."
+            )
+        else:
+            return FeedbackResponse(
+                success=False,
+                message="Failed to send feedback. Please try again later."
+            )
+    
+    except Exception as e:
+        logger.error(f"Error processing feedback: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to send feedback: {str(e)}"
         )
 
 

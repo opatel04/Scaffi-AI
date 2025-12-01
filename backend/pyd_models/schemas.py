@@ -191,3 +191,17 @@ class GenerateTestsResponse(BaseModel):
     message: str
 
 
+#--------Schema for Feedback--------#
+
+#Input
+class FeedbackRequest(BaseModel):
+    name: str
+    email: str
+    feedback: str
+
+#Output
+class FeedbackResponse(BaseModel):
+    success: bool
+    message: str
+
+

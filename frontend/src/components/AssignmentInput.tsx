@@ -111,11 +111,23 @@ export function AssignmentInput({
                     Uploading PDF
                   </label>
                   <div className="relative rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 p-8 min-h-[200px] flex items-center justify-center">
+                    <style>{`
+                      @keyframes bigBounce {
+                        0%, 100% {
+                          transform: translateY(0);
+                          animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+                        }
+                        50% {
+                          transform: translateY(-25px);
+                          animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+                        }
+                      }
+                    `}</style>
                     <div className="flex flex-col items-center gap-4">
-                      <div className="flex gap-3 items-end h-12">
-                        <div className="w-3 h-3 rounded-full bg-gray-400 dark:bg-gray-500" style={{ animation: 'bounce 1s infinite', animationDelay: '0ms' }} />
-                        <div className="w-3 h-3 rounded-full bg-gray-400 dark:bg-gray-500" style={{ animation: 'bounce 1s infinite', animationDelay: '200ms' }} />
-                        <div className="w-3 h-3 rounded-full bg-gray-400 dark:bg-gray-500" style={{ animation: 'bounce 1s infinite', animationDelay: '400ms' }} />
+                      <div className="flex gap-4 items-end h-16">
+                        <div className="w-4 h-4 rounded-full bg-gray-400 dark:bg-gray-500" style={{ animation: 'bigBounce 0.8s infinite', animationDelay: '0ms' }} />
+                        <div className="w-4 h-4 rounded-full bg-gray-400 dark:bg-gray-500" style={{ animation: 'bigBounce 0.8s infinite', animationDelay: '0.15s' }} />
+                        <div className="w-4 h-4 rounded-full bg-gray-400 dark:bg-gray-500" style={{ animation: 'bigBounce 0.8s infinite', animationDelay: '0.3s' }} />
                       </div>
                     </div>
                   </div>

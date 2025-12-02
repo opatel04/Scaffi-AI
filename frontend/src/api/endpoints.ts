@@ -244,7 +244,7 @@ export async function parseAndScaffold(
       currentProgress++;
       if (onProgress) onProgress("generating", currentProgress, totalTasks);
     }
-  }, 2500); // Update every 2.5 seconds for smooth feel
+  }, 4000); // Update every 3 seconds for smoother feel
 
   try {
     // Single API call for all tasks

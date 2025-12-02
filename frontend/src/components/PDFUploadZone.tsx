@@ -5,10 +5,11 @@ import { safeApiCall } from '../api/client';
 
 interface PDFUploadZoneProps {
   onTextExtracted: (text: string) => void;
+  onExtractionStateChange?: (isExtracting: boolean) => void;
   disabled?: boolean;
 }
 
-export function PDFUploadZone({ onTextExtracted, disabled = false }: PDFUploadZoneProps) {
+export function PDFUploadZone({ onTextExtracted, onExtractionStateChange, disabled = false }: PDFUploadZoneProps) {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isExtracting, setIsExtracting] = useState(false);
   const [extractionError, setExtractionError] = useState<string | null>(null);
@@ -47,6 +48,7 @@ export function PDFUploadZone({ onTextExtracted, disabled = false }: PDFUploadZo
     setUploadedFile(file);
     setExtractionError(null);
     setIsExtracting(true);
+    onExtractionStateChange?.(true);
 
     try {
       const result = await safeApiCall(
@@ -68,6 +70,7 @@ export function PDFUploadZone({ onTextExtracted, disabled = false }: PDFUploadZo
       setUploadedFile(null);
     } finally {
       setIsExtracting(false);
+      onExtractionStateChange?.(false);
     }
   };
 

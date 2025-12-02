@@ -185,6 +185,9 @@ node_modules/
 .DS_Store
 src/.DS_Store
 
+# IDE
+.vscode/
+
 # Test files
 test_*.py
 test_*.html

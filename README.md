@@ -266,7 +266,3 @@ MIT License
 **Made with ❤️ for students learning to code**
 
 
-
----
-
-**Made for students learning to code**

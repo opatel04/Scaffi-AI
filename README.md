@@ -6,6 +6,37 @@ Scaffi transforms overwhelming programming assignments into clear, manageable ta
 
 🚀 **[Try it live →](https://scaffi-ai.onrender.com/)**
 
+---
+
+## 👤 My Contribution
+
+I was responsible for the **entire frontend user experience of Scaffi-AI**, designing and implementing the complete **React + TypeScript application** end-to-end during the hackathon.
+
+### Frontend Ownership
+- Built the full **React 18 + TypeScript** application from scratch (initial ~3,300-line commit with subsequent refinements)
+- Implemented all three core user flows:
+  - **Landing Page**
+  - **Task Breakdown View**
+  - **In-Browser Code Editor**
+- Developed **20+ reusable components**, including:
+  - `ChatBot` — AI interaction interface
+  - `PixelBlast` — animated visual effects
+  - `PDFUploadZone` — assignment upload and parsing UI
+  - `GetHint` and `GetConceptExample` — AI-driven learning support components
+- Designed and implemented **global state management** using **Zustand**, including multi-file session persistence
+- Built the complete **API client layer**, handling all backend integrations and async workflows
+- Led **UI/UX design** using **Tailwind CSS**, including animations, responsive layout, and dark mode support
+
+### Team Collaboration
+- **Backend & AI Systems:** Atharva Zaveri  
+  (FastAPI backend, AI agents, prompt engineering, code execution pipeline)
+
+**Original repository:**  
+https://github.com/AtharvaZ/Scaffi-AI
+
+---
+
+
 ### What Scaffi Does
 
 - 📋 **Smart Breakdown** - Parses assignments (PDF or text) into ordered tasks with dependencies
